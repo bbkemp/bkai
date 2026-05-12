@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bkai dashboard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111'/%3E%3Ctext x='50%25' y='54%25' font-family='-apple-system,system-ui,sans-serif' font-size='32' font-weight='700' fill='%23f5b800' text-anchor='middle' dominant-baseline='middle'%3Eb%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0c0c0d;
+    --surface: #16161a;
+    --border: #26262b;
+    --text: #ececec;
+    --muted: #8a8a90;
+    --accent: #f5b800;
+    --danger: #ef5350;
+    --success: #66bb6a;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body {
+    font-family: ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 720px; margin: 0 auto; padding: 28px 22px 60px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
+  h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .sub a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px;
+    margin-bottom: 14px;
+  }
+  .label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .sentinel {
+    font-family: var(--mono);
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    word-break: break-all;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    font-family: inherit; font-size: 13.5px;
+    background: var(--accent); color: #000; border: 0; border-radius: 7px;
+    padding: 10px 16px; cursor: pointer; font-weight: 600;
+    transition: filter 120ms, background 120ms, color 120ms;
+  }
+  button.secondary {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+    font-weight: 500;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { filter: brightness(0.92); }
+  button.copied { background: var(--success); color: #000; }
+  button.copied.secondary { border-color: var(--success); color: var(--success); background: transparent; }
+  pre, code {
+    font-family: var(--mono);
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  pre {
+    padding: 12px 14px; font-size: 12px; line-height: 1.55;
+    overflow-x: auto; margin: 14px 0 0; white-space: pre-wrap; word-break: break-word;
+  }
+  code { padding: 1px 6px; font-size: 12px; }
+  .status-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); vertical-align: middle;
+  }
+  .status-dot.live { background: var(--success); box-shadow: 0 0 0 3px rgba(102,187,106,0.18); }
+  .status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(239,83,80,0.18); }
+  .err-msg { color: var(--danger); font-size: 12px; margin-left: 4px; }
+  .meta { color: var(--muted); font-size: 11.5px; margin-top: 28px; line-height: 1.7; }
+  .meta a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+  .note { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; line-height: 1.5; }
+  .candidate-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .candidate-wrap:empty { display: none; }
+  .kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>bkai dashboard</h1>
+      <div class="sub">Helper for <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">claude-ops</a>. Source of truth is the repo.</div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="label">
+      <span class="status-dot" id="status-dot"></span>
+      Current sentinel
+      <span id="status-msg" class="err-msg"></span>
+    </div>
+    <div class="sentinel" id="sentinel">loading&hellip;</div>
+    <div class="row">
+      <button id="copy-paste" type="button">Copy paste-text for new chat</button>
+      <button class="secondary" id="copy-sentinel" type="button">Copy sentinel</button>
+      <button class="secondary" id="refresh" type="button">Refresh</button>
+    </div>
+    <pre id="paste-preview" aria-label="Paste-text preview"></pre>
+  </div>
+
+  <div class="card">
+    <div class="label">Rotate sentinel</div>
+    <div class="note">
+      Generates a fresh candidate. Replace line 1 of <code>CHARTER.md</code> and the footer date line, commit, push. The new value goes live as soon as <code>main</code> updates.
+    </div>
+    <div class="row">
+      <button id="generate" type="button">Generate new candidate</button>
+    </div>
+    <div class="candidate-wrap" id="generated"></div>
+  </div>
+
+  <div class="meta">
+    Charter: <a id="charter-link" href="https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md" target="_blank" rel="noopener">raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md</a><br>
+    Repo: <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a><br>
+    Press <span class="kbd">R</span> to refresh, <span class="kbd">C</span> to copy paste-text.
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var CHARTER_RAW = 'https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md';
+  var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
+
+  var ADJ = ['marigold','corduroy','granite','petrichor','ember','tungsten','obsidian','copper','azure','saffron','indigo','onyx','flannel','cobalt','iron','amber','sable','vermillion','jade','crimson','glacier','umber','quartz','slate','olive','rust','linen','flint','dune','ivory','cinder','beryl','agate','spruce','willow','clover','heather','myrtle','sienna','ochre'];
+  var NOUN = ['piston','lighthouse','mailbox','anchor','lantern','compass','satchel','wrench','beacon','rivet','helm','sextant','flask','ledger','quill','hatch','spool','gauge','toggle','crank','bolt','grommet','axle','tether','spindle','wedge','plinth','dowel','stencil','sprocket','bellows','caliper','jigsaw','mortar','pulley','ratchet','sluice','tonnage','vise','yoke'];
+
+  function newSentinel() {
+    var a = ADJ[Math.floor(Math.random() * ADJ.length)];
+    var n = NOUN[Math.floor(Math.random() * NOUN.length)];
+    var d = String(Math.floor(1000 + Math.random() * 9000));
+    return a + '-' + n + '-' + d;
+  }
+
+  function pasteText(s) {
+    return 'Read ' + CHARTER_RAW + ' and echo the sentinel from line 1 verbatim in the form "Sentinel: <value>" before responding. If the fetch fails, say so explicitly — do not proceed as if you fetched. Current sentinel should be "' + s + '"; if you get a different value, the charter rotated and the new one supersedes.';
+  }
+
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  var sentinelEl = document.getElementById('sentinel');
+  var statusDot = document.getElementById('status-dot');
+  var statusMsg = document.getElementById('status-msg');
+  var previewEl = document.getElementById('paste-preview');
+  var copyPasteBtn = document.getElementById('copy-paste');
+  var copySentinelBtn = document.getElementById('copy-sentinel');
+  var refreshBtn = document.getElementById('refresh');
+  var generateBtn = document.getElementById('generate');
+  var generatedEl = document.getElementById('generated');
+
+  var currentSentinel = null;
+
+  function setStatus(state, msg) {
+    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+    statusMsg.textContent = msg || '';
+  }
+
+  async function loadSentinel() {
+    setStatus('', 'fetching…');
+    try {
+      var r = await fetch(CHARTER_RAW + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var txt = await r.text();
+      var m = txt.match(SENTINEL_RE);
+      if (!m) throw new Error('no sentinel marker in CHARTER.md');
+      currentSentinel = m[1];
+      sentinelEl.textContent = currentSentinel;
+      previewEl.textContent = pasteText(currentSentinel);
+      setStatus('live', '');
+    } catch (e) {
+      currentSentinel = null;
+      sentinelEl.textContent = '—';
+      previewEl.textContent = '';
+      setStatus('err', 'fetch failed: ' + e.message);
+    }
+  }
+
+  function flashCopied(btn) {
+    var original = btn.textContent;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied';
+    setTimeout(function () {
+      btn.classList.remove('copied');
+      btn.textContent = original;
+    }, 1500);
+  }
+
+  async function copy(text, btn) {
+    try {
+      await navigator.clipboard.writeText(text);
+      flashCopied(btn);
+    } catch (e) {
+      alert('Clipboard write failed: ' + e.message);
+    }
+  }
+
+  copyPasteBtn.addEventListener('click', function () {
+    if (!currentSentinel) return;
+    copy(pasteText(currentSentinel), copyPasteBtn);
+  });
+  copySentinelBtn.addEventListener('click', function () {
+    if (!currentSentinel) return;
+    copy(currentSentinel, copySentinelBtn);
+  });
+  refreshBtn.addEventListener('click', loadSentinel);
+
+  generateBtn.addEventListener('click', function () {
+    var candidate = newSentinel();
+    var d = today();
+    var line1 = '<!-- SENTINEL: ' + candidate + ' -->';
+    var footer = '*Last updated: ' + d + '. Sentinel: ' + candidate + '.*';
+
+    generatedEl.innerHTML =
+      '<div class="label">Candidate</div>' +
+      '<div class="sentinel" style="font-size:20px;">' + candidate + '</div>' +
+      '<div class="row">' +
+        '<button class="secondary" data-copy="value">Copy value</button>' +
+        '<button class="secondary" data-copy="line1">Copy line 1 replacement</button>' +
+        '<button class="secondary" data-copy="footer">Copy footer line</button>' +
+      '</div>' +
+      '<pre>Line 1 (replace existing comment):\n' + line1.replace(/</g, '&lt;') + '\n\nFooter (last line of file):\n' + footer + '</pre>';
+
+    var buttons = generatedEl.querySelectorAll('button[data-copy]');
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var which = b.getAttribute('data-copy');
+        var text = which === 'value' ? candidate : (which === 'line1' ? line1 : footer);
+        copy(text, b);
+      });
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'r' || e.key === 'R') { loadSentinel(); }
+    if (e.key === 'c' || e.key === 'C') {
+      if (currentSentinel) copy(pasteText(currentSentinel), copyPasteBtn);
+    }
+  });
+
+  loadSentinel();
+})();
+</script>
+</body>
+</html>
