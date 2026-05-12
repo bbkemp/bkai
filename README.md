@@ -1,6 +1,6 @@
 # claude-ops
 
-A repo dedicated to not getting butt-fucked by Claude.
+A repo dedicated to not getting bent by Claude.
 
 ## What this is
 
