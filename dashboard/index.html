@@ -416,7 +416,7 @@
     // Reading the charter is the directive. The pass phrase is the receipt —
     // intentionally not embedded here so Claude can't echo a value supplied in
     // the prompt; the only path through is to actually read the file.
-    return "Bryan's charter lives at " + cbUrl + ". Read every paragraph — the 21 rules in it govern how you work with him for the rest of this session. The file contains [[token:N:WORD]] markers scattered through it as a proof-of-read; find every one, sort by N ascending, and lead your first response with the assembled sentence in the form \"Pass phrase: <sentence>\". If the fetch fails or no markers turn up, say so explicitly — do not proceed as if you fetched.";
+    return "Bryan's charter lives at " + cbUrl + ". Read every paragraph — the 21 rules in it govern how you work with him for the rest of this session. The file contains [[token:N:WORD]] markers scattered through it as a pass-phrase check; find every one, sort by N ascending, and lead your first response with the assembled sentence in the form \"Pass phrase: <sentence>\". If the fetch fails or no markers turn up, say so explicitly — do not proceed as if you fetched.";
   }
 
   function rotationPrompt(sentence, dateStr) {
