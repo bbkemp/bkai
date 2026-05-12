@@ -1,0 +1,43 @@
+---
+name: homebrew-anchor
+description: Project context for Wii U / DS / retro-gaming homebrew work. Hardware state, references, working style. Use when troubleshooting Aroma, RetroArch, UWUVCI, or related setups. Pair with the `charter` rule.
+---
+
+# Homebrew & retro gaming — project anchor
+
+Use when working on Wii U / DS / retro gaming setup.
+
+---
+
+## Load order
+
+1. The `charter` rules apply.
+2. Then read the rest of this anchor for project-specific context.
+3. If recommending a button sequence, install step, or button-hold timing — verify from the actual current guide before stating. Familiarity is the verify-trigger.
+
+---
+
+**Hardware:**
+- Wii U with Aroma CFW (in progress / debugging)
+- SD card mounted as `SHEDU` on Mac
+- Projector + GamePad setup in shed/studio
+- DS games: Contra 4 etc.
+- Mac (anti-Microsoft — no Windows tools, ever)
+
+**Current state (as of May 2026):**
+- Wii U Aroma install: incomplete / not loading. Browser exploit + PayloadLoaderInstaller flow had to be re-run. White screen hang during exploit.
+- SD card cleanup completed: removed duplicate per-core `*_libretro.wuhb` apps. Single unified RetroArch app remains.
+- RetroArch on Wii U hangs at `retroarch.rpx` splash → diagnosed as Aroma not loading, not RetroArch itself.
+- DS emulation: NooDS on Wii U performs poorly (hardware-bottlenecked). UWUVCI inject path identified as better but not yet implemented.
+
+**Known references:**
+- Canonical install guide: <https://wiiu.hacks.guide/>
+- Aroma payloads: <https://aroma.foryour.cafe/>
+- Browser exploit: <https://wiiuexploit.xyz/>
+
+**Working style for this project:**
+- Bryan is on Mac. Never suggest Windows tools or VMs as primary path.
+- Power cycling the Wii U costs real time. Every Mac↔Wii U round trip should accomplish multiple things at once.
+- Bryan uses `pbcopy` and terminal diagnostics. Give him copy-pasteable scripts that return ground truth in one shot.
+- Screenshots are how Bryan gives state. Read them carefully. Don't infer.
+- If Bryan asks "did you read the instructions?" — the answer is yes only if you actually read them. No exceptions. (Charter Rule 2.)
