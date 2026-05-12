@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bkai Compass</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f3ead4'/%3E%3Ctext x='50%25' y='62%25' font-family='Georgia,serif' font-size='42' font-weight='700' fill='%23c0282a' text-anchor='middle' dominant-baseline='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f3ead4'/%3E%3Ctext x='50%25' y='62%25' font-family='Georgia,serif' font-size='42' font-weight='700' fill='%23d22d4b' text-anchor='middle' dominant-baseline='middle'%3EC%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Gloock&display=swap">
@@ -13,13 +13,17 @@
     --bg: #f3ead4;
     --surface: #faf3df;
     --surface-2: #ede2c4;
-    --border: #d8c89e;
-    --text: #1f1b15;
+    --ink: #1a140e;
+    --text: #1a140e;
     --muted: #6e6450;
+    --cream: #faf3df;
+    --title-red: #d22d4b;
+    --label-blue: #2493b3;
     --danger: #c0282a;
     --success: #2a8c49;
     --accent: #c0282a;
     --accent-fg: #faf3df;
+    --accent-dark: #3d0d0d;
     --display: 'Gloock', Georgia, 'Times New Roman', serif;
     --sans: 'DM Sans', ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
     --mono: 'DM Mono', ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
@@ -31,46 +35,48 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  .app { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; }
+  .app { max-width: 740px; margin: 0 auto; padding: 44px 24px 80px; }
 
   header { margin-bottom: 36px; }
-  .brand {
-    display: block;
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.28em;
-    color: var(--text);
-    text-transform: uppercase;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
   h1.display {
     font-family: var(--display);
-    font-weight: 400;
-    font-size: 76px;
+    font-weight: 700;
+    font-size: 84px;
     line-height: 1;
-    color: var(--accent);
-    margin: 0 0 14px;
-    letter-spacing: -0.02em;
+    color: var(--title-red);
+    margin: 0 0 16px;
+    letter-spacing: -0.025em;
+    -webkit-text-stroke: 0.6px currentColor;
   }
   .sub {
     font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--label-blue);
     line-height: 1.6;
-    max-width: 560px;
+    max-width: 600px;
+    -webkit-text-stroke: 0.2px currentColor;
   }
-  .sub a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
-  .sub .dot { color: var(--accent); padding: 0 6px; font-weight: 700; }
+  .sub a {
+    color: var(--label-blue);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1.5px;
+  }
+  .sub .dot {
+    color: var(--title-red);
+    padding: 0 8px;
+    font-weight: 700;
+    font-size: 14px;
+    vertical-align: -1px;
+  }
 
   .card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 2px solid var(--ink);
+    border-radius: 0;
     padding: 26px 24px 24px;
     margin-bottom: 18px;
     position: relative;
@@ -78,21 +84,22 @@
   .label {
     font-family: var(--sans);
     font-weight: 700;
-    font-size: 10.5px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.22em;
-    color: var(--accent);
-    margin-bottom: 14px;
+    color: var(--ink);
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    -webkit-text-stroke: 0.25px currentColor;
   }
   .sentinel {
     font-family: var(--mono);
     font-weight: 500;
     font-size: 30px;
     color: var(--accent);
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     word-break: break-all;
     line-height: 1.1;
     letter-spacing: -0.01em;
@@ -105,35 +112,35 @@
     font-weight: 700;
     background: var(--accent);
     color: var(--accent-fg);
-    border: 1px solid var(--accent);
-    border-radius: 4px;
+    border: 2px solid var(--ink);
+    border-radius: 0;
     padding: 10px 18px;
     cursor: pointer;
     letter-spacing: 0.04em;
     transition: filter 120ms, background 120ms, color 120ms, border-color 120ms;
   }
   button.secondary {
-    background: transparent;
-    color: var(--text);
-    border-color: var(--border);
-    font-weight: 500;
+    background: var(--surface);
+    color: var(--ink);
+    border-color: var(--ink);
+    font-weight: 700;
   }
   button:hover { filter: brightness(0.95); }
   button.secondary:hover { background: var(--surface-2); filter: none; }
   button:active { filter: brightness(0.88); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button:disabled:hover { filter: none; background: var(--accent); }
-  button.secondary:disabled:hover { background: transparent; }
-  button.copied { background: var(--success) !important; color: #faf3df !important; border-color: var(--success) !important; }
+  button.secondary:disabled:hover { background: var(--surface); }
+  button.copied { background: var(--success) !important; color: var(--cream) !important; border-color: var(--ink) !important; }
 
   input[type="text"] {
     font-family: var(--mono);
     font-weight: 500;
     font-size: 18px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--accent);
+    background: var(--accent-dark);
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    color: var(--cream);
     padding: 10px 14px;
     flex: 1;
     min-width: 240px;
@@ -141,78 +148,95 @@
     outline: none;
     transition: border-color 120ms, background 120ms;
   }
-  input[type="text"]:focus { border-color: var(--accent); background: var(--surface); }
-  input[type="text"].invalid { border-color: var(--danger); color: var(--danger); }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"].invalid {
+    border-color: var(--danger);
+    color: var(--cream);
+    background: var(--accent-dark);
+  }
+  input[type="text"]::selection { background: var(--accent); color: var(--cream); }
 
   pre, code {
     font-family: var(--mono);
     background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: 2px solid var(--ink);
+    border-radius: 0;
   }
   pre {
     padding: 12px 14px;
     font-size: 12px;
     line-height: 1.6;
     overflow-x: auto;
-    margin: 16px 0 0;
+    margin: 18px 0 0;
     white-space: pre-wrap;
     word-break: break-word;
     color: var(--text);
   }
   #rotation-preview { height: 140px; overflow-y: auto; }
-  code { padding: 1px 6px; font-size: 12px; color: var(--text); }
+  code {
+    padding: 1px 6px;
+    font-size: 12px;
+    color: var(--text);
+    border-width: 1px;
+  }
 
   .status-dot {
-    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: var(--muted); vertical-align: middle;
   }
-  .status-dot.live { background: var(--success); box-shadow: 0 0 0 3px rgba(42,140,73,0.18); }
-  .status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(192,40,42,0.18); }
-  .err-msg { color: var(--danger); font-size: 12px; margin-left: 4px; font-weight: 500; }
+  .status-dot.live { background: var(--success); box-shadow: 0 0 0 3px rgba(42,140,73,0.22); }
+  .status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(192,40,42,0.22); }
+  .err-msg {
+    color: var(--danger);
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
 
   .note {
-    color: var(--muted);
+    color: var(--ink);
     font-size: 13px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     line-height: 1.55;
+    font-weight: 500;
   }
-  .note code { background: var(--surface-2); color: var(--text); }
+  .note code { background: var(--surface-2); color: var(--ink); }
 
   .meta {
-    color: var(--muted);
+    color: var(--ink);
     font-size: 11px;
     margin-top: 36px;
     line-height: 1.9;
     font-weight: 500;
     letter-spacing: 0.04em;
   }
-  .meta a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+  .meta a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
   .kbd {
     font-family: var(--mono);
     font-size: 10.5px;
     padding: 1px 6px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--ink);
     background: var(--surface);
-    border-radius: 3px;
-    color: var(--muted);
+    border-radius: 0;
+    color: var(--ink);
   }
   .accent-tag {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 10.5px;
     font-weight: 700;
-    color: var(--muted);
+    color: var(--ink);
   }
   .accent-tag .swatch {
     display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
+    width: 12px; height: 12px;
     background: var(--accent);
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--ink);
   }
   .accent-tag b {
     color: var(--accent);
@@ -223,12 +247,11 @@
 <body>
 <div class="app">
   <header>
-    <span class="brand">Bkai</span>
-    <h1 class="display">Compass</h1>
+    <h1 class="display">Bkai Compass</h1>
     <div class="sub">
-      An illustrated helper for sentinel rotation
-      <span class="dot">·</span> charter fetch
-      <span class="dot">·</span> source of truth at <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a>
+      Helper for directional charter fetch sentinel rotation
+      <span class="dot">&bull;</span>
+      <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a>
     </div>
   </header>
 
@@ -306,21 +329,37 @@
     return a + '-' + n + '-' + d;
   }
 
+  function hexToRgb(h) {
+    return {
+      r: parseInt(h.slice(1, 3), 16),
+      g: parseInt(h.slice(3, 5), 16),
+      b: parseInt(h.slice(5, 7), 16)
+    };
+  }
+  function rgbToHex(r, g, b) {
+    function h(x) { var s = Math.max(0, Math.min(255, Math.round(x))).toString(16); return s.length === 1 ? '0' + s : s; }
+    return '#' + h(r) + h(g) + h(b);
+  }
+  function mix(c1, c2, t) {
+    var a = hexToRgb(c1), b = hexToRgb(c2);
+    return rgbToHex(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t);
+  }
   function lin(c) {
     c = c / 255;
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   }
   function luminance(hex) {
-    var r = parseInt(hex.slice(1, 3), 16);
-    var g = parseInt(hex.slice(3, 5), 16);
-    var b = parseInt(hex.slice(5, 7), 16);
-    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    var c = hexToRgb(hex);
+    return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
   }
   function fgFor(hex) {
     // Match the Color Compass: black ink on light hues (yellow / yellow-orange /
-    // orange / yellow-green), cream on the deep ones. Threshold tuned to the
-    // wheel's actual choices.
-    return luminance(hex) > 0.42 ? '#1f1b15' : '#faf3df';
+    // orange / yellow-green), cream on the deep ones.
+    return luminance(hex) > 0.42 ? '#1a140e' : '#faf3df';
+  }
+  function darken(hex) {
+    // Blend 70% toward off-black to produce the wheel's innermost-ring shade.
+    return mix(hex, '#0d0a06', 0.7);
   }
 
   function applyAccent() {
@@ -328,6 +367,7 @@
     var root = document.documentElement.style;
     root.setProperty('--accent', pick.hex);
     root.setProperty('--accent-fg', fgFor(pick.hex));
+    root.setProperty('--accent-dark', darken(pick.hex));
     var nameEl = document.getElementById('accent-name');
     if (nameEl) nameEl.textContent = pick.name;
   }
