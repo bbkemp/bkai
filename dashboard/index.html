@@ -41,7 +41,7 @@
     padding: 34px 24px 80px;
   }
 
-  header {margin-bottom: 13px;}
+  header { margin-bottom: 13px; }
   h1.display {
     font-family: var(--display);
     font-weight: 700;
@@ -72,6 +72,14 @@
     margin-bottom: 18px;
     position: relative;
   }
+  .card.primary {
+    background: var(--accent);
+    border-color: var(--ink);
+    color: var(--accent-fg);
+  }
+  .card.primary .label { color: var(--accent-fg); }
+  .card.primary .url-display { color: var(--accent-fg); }
+
   .label {
     font-family: var(--sans);
     font-weight: 700;
@@ -85,14 +93,24 @@
     gap: 10px;
     -webkit-text-stroke: 0.25px currentColor;
   }
-  .sentinel {
+  .url-display {
     font-family: var(--mono);
     font-weight: 500;
-    font-size: 30px;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 18px;
+    word-break: break-all;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+  }
+  .passphrase {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 24px;
     color: var(--accent);
     margin-bottom: 20px;
-    word-break: break-all;
-    line-height: 1.1;
+    word-break: break-word;
+    line-height: 1.2;
     letter-spacing: -0.01em;
   }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -117,8 +135,19 @@
     border-color: var(--ink);
     font-weight: 700;
   }
+  .card.primary button {
+    background: var(--accent-fg);
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+  .card.primary button.secondary {
+    background: transparent;
+    color: var(--accent-fg);
+    border-color: var(--accent-fg);
+  }
   button:hover { filter: brightness(0.95); }
   button.secondary:hover { background: var(--surface-2); filter: none; }
+  .card.primary button.secondary:hover { background: rgba(250,243,223,0.15); }
   button:active { filter: brightness(0.88); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button:disabled:hover { filter: none; background: var(--accent); }
@@ -128,7 +157,7 @@
   input[type="text"] {
     font-family: var(--mono);
     font-weight: 500;
-    font-size: 18px;
+    font-size: 16px;
     background: var(--surface-2);
     border: 2px solid var(--ink);
     border-radius: 0;
@@ -193,6 +222,7 @@
     letter-spacing: 0.06em;
     text-transform: none;
   }
+  .card.primary .err-msg { color: var(--cream); opacity: 0.85; }
 
   .note {
     color: var(--ink);
@@ -201,6 +231,7 @@
     line-height: 1.55;
     font-weight: 500;
   }
+  .card.primary .note { color: var(--accent-fg); opacity: 0.92; }
   .note code { background: var(--surface-2); color: var(--ink); }
 
   .meta {
@@ -257,33 +288,42 @@
   <header>
     <h1 class="display">Bkai Compass</h1>
     <div class="sub">
-      Helper for directional charter fetch sentinel rotation
+      Helper for directional charter fetch pass-phrase rotation
     </div>
   </header>
+
+  <div class="card primary">
+    <div class="label">Charter URL for new chat</div>
+    <div class="url-display" id="cb-url">loading&hellip;</div>
+    <div class="row">
+      <button id="copy-url" type="button">Copy URL</button>
+      <button class="secondary" id="reroll-url" type="button" title="Regenerate cache-bust suffix">&#8635; Re-roll URL</button>
+    </div>
+  </div>
 
   <div class="card">
     <div class="label">
       <span class="status-dot" id="status-dot"></span>
-      Current sentinel
+      Current pass phrase
       <span id="status-msg" class="err-msg"></span>
     </div>
-    <div class="sentinel" id="sentinel">loading&hellip;</div>
+    <div class="passphrase" id="passphrase">loading&hellip;</div>
     <div class="row">
       <button id="copy-paste" type="button">Copy paste-text for new chat</button>
-      <button class="secondary" id="copy-sentinel" type="button">Copy sentinel</button>
+      <button class="secondary" id="copy-passphrase" type="button">Copy pass phrase</button>
       <button class="secondary" id="refresh" type="button">Refresh</button>
     </div>
     <pre id="paste-preview" aria-label="Paste-text preview"></pre>
   </div>
 
   <div class="card">
-    <div class="label">Rotate sentinel</div>
+    <div class="label">Rotate pass phrase</div>
     <div class="note">
-      Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; edit <code>CHARTER.md</code> &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
+      Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; <code>npm run charter:rotate &quot;&hellip;&quot;</code> &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
     </div>
     <div class="row">
-      <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New sentinel candidate">
-      <button class="secondary" id="reroll" type="button" title="Generate another random candidate">&#8635; Reroll</button>
+      <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New pass phrase candidate">
+      <button class="secondary" id="reroll-sentence" type="button" title="Generate another candidate sentence">&#8635; Reroll</button>
     </div>
     <div id="candidate-err" class="err-msg" style="margin: 8px 0 0; min-height: 14px;"></div>
     <div class="row" style="margin-top: 14px;">
@@ -296,19 +336,19 @@
     <span class="accent-tag" id="accent-tag" role="button" tabindex="0" title="Click to cycle to the next wheel hue">
       <span class="swatch"></span> accent <b id="accent-name">—</b>
     </span><br>
-    Charter: <a id="charter-link" href="https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md" target="_blank" rel="noopener">raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md</a><br>
+    Charter source: <a id="charter-link" href="https://github.com/bbkemp/bkai/blob/main/CHARTER.md" target="_blank" rel="noopener">github.com/bbkemp/bkai/blob/main/CHARTER.md</a><br>
     Repo: <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a><br>
-    Press <span class="kbd">R</span> to refresh, <span class="kbd">C</span> to copy paste-text.
+    Press <span class="kbd">R</span> to refresh pass phrase, <span class="kbd">U</span> to re-roll URL, <span class="kbd">C</span> to copy paste-text.
   </div>
 </div>
 
 <script>
 (function () {
   'use strict';
-  var CHARTER_RAW = 'https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md';
+  var CHARTER_BASE = 'https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md';
   var CHARTER_API = 'https://api.github.com/repos/bbkemp/bkai/contents/CHARTER.md?ref=main';
-  var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
-  var CANDIDATE_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
+  var MARKER_RE = /\[\[token:(\d+):([^\]]+)\]\]/g;
+  var SENTENCE_RE = /^[A-Za-z][A-Za-z0-9 \-']*$/;
 
   // 12 hues from the Grumbacher Color Compass labeled ring, clockwise order.
   var WHEEL = [
@@ -326,22 +366,217 @@
     { name: 'yellow-green',  hex: '#8fb42f' }
   ];
 
-  var ADJ = ['marigold','corduroy','granite','petrichor','ember','tungsten','obsidian','copper','azure','saffron','indigo','onyx','flannel','cobalt','iron','amber','sable','vermillion','jade','crimson','glacier','umber','quartz','slate','olive','rust','linen','flint','dune','ivory','cinder','beryl','agate','spruce','willow','clover','heather','myrtle','sienna','ochre'];
-  var NOUN = ['piston','lighthouse','mailbox','anchor','lantern','compass','satchel','wrench','beacon','rivet','helm','sextant','flask','ledger','quill','hatch','spool','gauge','toggle','crank','bolt','grommet','axle','tether','spindle','wedge','plinth','dowel','stencil','sprocket','bellows','caliper','jigsaw','mortar','pulley','ratchet','sluice','tonnage','vise','yoke'];
+  // Word pool — kept in sync with scripts/rotate-charter.mjs so dashboard-generated
+  // candidates won't trip the script's conflict check after rotation.
+  var ADJ    = ['granite','marigold','ember','copper','slate','azure','jade','ochre','amber','indigo','willow','briar','cinder','clover','umber','sable','flannel','spruce','heather','myrtle'];
+  var NOUN1  = ['axles','lanterns','pulleys','bellows','spindles','sextants','mortars','grommets','wheelhouses','sprockets','calipers','ratchets','yokes','pistons','rivets','bobbins'];
+  var VERBS  = ['squeak','glimmer','settle','hum','ripple','clatter','tremble','warble','flutter','rustle','shimmer','creak','pivot','spool'];
+  var VERBED = ['oiled','polished','kindled','tethered','calibrated','etched','plaited','dredged','glazed','sanded','lacquered','burnished'];
+  var NOUN2  = ['flint','lacquer','twine','vellum','beeswax','chalk','sealant','solder','resin','shellac','wax'];
 
-  function newSentinel() {
-    var a = ADJ[Math.floor(Math.random() * ADJ.length)];
-    var n = NOUN[Math.floor(Math.random() * NOUN.length)];
-    var d = String(Math.floor(1000 + Math.random() * 9000));
-    return a + '-' + n + '-' + d;
+  function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function cap(s) { return s[0].toUpperCase() + s.slice(1); }
+
+  function generateSentence() {
+    // "ADJ NOUN1 VERB when VERBED with ADJ NOUN2" — 8 tokens, mirrors the script.
+    return [cap(pick(ADJ)), pick(NOUN1), pick(VERBS), 'when', pick(VERBED), 'with', pick(ADJ), pick(NOUN2)].join(' ');
   }
 
+  function randomCbHex(bytes) {
+    var arr = new Uint8Array(bytes);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function urlWithCb(cb) {
+    return CHARTER_BASE + '?cb=' + cb;
+  }
+
+  function extractPassPhrase(text) {
+    var tokens = [];
+    var m;
+    MARKER_RE.lastIndex = 0;
+    while ((m = MARKER_RE.exec(text)) !== null) {
+      tokens.push({ n: parseInt(m[1], 10), word: m[2] });
+    }
+    if (tokens.length === 0) return null;
+    tokens.sort(function (a, b) { return a.n - b.n; });
+    return tokens.map(function (t) { return t.word; }).join(' ');
+  }
+
+  function decodeBase64Utf8(b64) {
+    var clean = b64.replace(/\s/g, '');
+    var bin = atob(clean);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  function pasteText(cbUrl) {
+    // Reading the charter is the directive. The pass phrase is the receipt —
+    // intentionally not embedded here so Claude can't echo a value supplied in
+    // the prompt; the only path through is to actually read the file.
+    return "Bryan's charter lives at " + cbUrl + ". Read every paragraph — the 21 rules in it govern how you work with him for the rest of this session. The file contains [[token:N:WORD]] markers scattered through it as a pass-phrase check; find every one, sort by N ascending, and lead your first response with the assembled sentence in the form \"Pass phrase: <sentence>\". If the fetch fails or no markers turn up, say so explicitly — do not proceed as if you fetched.";
+  }
+
+  function rotationPrompt(sentence, dateStr) {
+    return [
+      'Rotate the bbkemp/bkai charter pass phrase to: "' + sentence + '" (date ' + dateStr + ').',
+      '',
+      'Execute end-to-end, no further confirmation:',
+      '1. Ensure a local clone of bbkemp/bkai exists. If not, `git clone https://github.com/bbkemp/bkai.git /tmp/bkai-clone`.',
+      '2. cd into the clone, `git checkout main && git pull`.',
+      '3. `git checkout -b chore/rotate-pass-phrase-' + sentence.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) + '`.',
+      '4. `node scripts/rotate-charter.mjs "' + sentence + '"`  (or `npm run charter:rotate -- "' + sentence + '"`)',
+      '5. `git add CHARTER.md && git commit -m "chore(charter): rotate pass phrase — ' + sentence + '" && git push -u origin HEAD`.',
+      '6. Open PR via GitHub MCP (title same as commit, base main, body "Routine pass-phrase rotation. Generated from the dashboard.").',
+      '7. Squash-merge the PR.',
+      '8. Verify via GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main`, extract all [[token:N:WORD]] markers, sort by N, echo the assembled sentence in the form "Pass phrase: <sentence>". Do NOT compare it to anything in this prompt — just echo what you reconstructed. Bryan verifies against the dashboard.',
+      '9. Reply with: the echoed Pass phrase line + the main commit SHA. One line.',
+      '',
+      'Only stop and ask if something is genuinely wrong: branch name already exists, script reports a token conflict, merge conflict, post-merge Contents API fetch produces no markers. Otherwise execute silently.'
+    ].join('\n');
+  }
+
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  // ---- DOM refs ------------------------------------------------------------
+  var cbUrlEl = document.getElementById('cb-url');
+  var copyUrlBtn = document.getElementById('copy-url');
+  var rerollUrlBtn = document.getElementById('reroll-url');
+
+  var passPhraseEl = document.getElementById('passphrase');
+  var statusDot = document.getElementById('status-dot');
+  var statusMsg = document.getElementById('status-msg');
+  var pastePreviewEl = document.getElementById('paste-preview');
+  var copyPasteBtn = document.getElementById('copy-paste');
+  var copyPassPhraseBtn = document.getElementById('copy-passphrase');
+  var refreshBtn = document.getElementById('refresh');
+
+  var candidateInput = document.getElementById('candidate');
+  var rerollSentenceBtn = document.getElementById('reroll-sentence');
+  var copyRotationBtn = document.getElementById('copy-rotation');
+  var candidateErr = document.getElementById('candidate-err');
+  var rotationPreview = document.getElementById('rotation-preview');
+
+  var accentTag = document.getElementById('accent-tag');
+
+  // ---- State --------------------------------------------------------------
+  var currentCb = null;
+  var currentPassPhrase = null;
+
+  function setStatus(state, msg) {
+    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+    statusMsg.textContent = msg || '';
+  }
+
+  // ---- URL card -----------------------------------------------------------
+  function setCbUrl(cb) {
+    currentCb = cb;
+    var url = urlWithCb(cb);
+    cbUrlEl.textContent = url;
+    // Paste-text only depends on the URL — pass phrase never leaks into the prompt.
+    pastePreviewEl.textContent = pasteText(url);
+  }
+
+  function rerollUrl() {
+    setCbUrl(randomCbHex(4));
+  }
+
+  // ---- Pass phrase card ---------------------------------------------------
+  async function loadPassPhrase() {
+    setStatus('', 'fetching…');
+    try {
+      var r = await fetch(CHARTER_API, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' },
+        cache: 'no-store'
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var json = await r.json();
+      if (json.encoding !== 'base64' || typeof json.content !== 'string') {
+        throw new Error('unexpected API response shape');
+      }
+      var txt = decodeBase64Utf8(json.content);
+      var phrase = extractPassPhrase(txt);
+      if (!phrase) throw new Error('no [[token:N:WORD]] markers in CHARTER.md');
+      currentPassPhrase = phrase;
+      passPhraseEl.textContent = phrase;
+      setStatus('live', '');
+    } catch (e) {
+      currentPassPhrase = null;
+      passPhraseEl.textContent = '—';
+      pastePreviewEl.textContent = '';
+      setStatus('err', 'fetch failed: ' + e.message);
+    }
+  }
+
+  // ---- Clipboard helper ---------------------------------------------------
+  function flashCopied(btn) {
+    var original = btn.textContent;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied';
+    setTimeout(function () {
+      btn.classList.remove('copied');
+      btn.textContent = original;
+    }, 1500);
+  }
+
+  async function copy(text, btn) {
+    try {
+      await navigator.clipboard.writeText(text);
+      flashCopied(btn);
+    } catch (e) {
+      alert('Clipboard write failed: ' + e.message);
+    }
+  }
+
+  // ---- Rotation card ------------------------------------------------------
+  function tokenize(s) {
+    return s.split(/\s+/).map(function (t) { return t.replace(/[^A-Za-z0-9]/g, ''); }).filter(Boolean);
+  }
+
+  function updateRotationPreview() {
+    var v = candidateInput.value.trim();
+    var tokens = tokenize(v);
+    if (!v) {
+      candidateErr.textContent = 'Sentence required.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    if (!SENTENCE_RE.test(v)) {
+      candidateErr.textContent = 'Letters, digits, spaces, hyphens, and apostrophes only. Must start with a letter.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    if (tokens.length < 5 || tokens.length > 10) {
+      candidateErr.textContent = 'Sentence must yield 5–10 tokens. Currently ' + tokens.length + '.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    if (currentPassPhrase && v.toLowerCase() === currentPassPhrase.toLowerCase()) {
+      candidateErr.textContent = 'Same as current pass phrase — pick a different one.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    candidateErr.textContent = '';
+    candidateInput.classList.remove('invalid');
+    copyRotationBtn.disabled = false;
+    rotationPreview.textContent = rotationPrompt(v, today());
+  }
+
+  // ---- Accent (rotating color theme) --------------------------------------
   function hexToRgb(h) {
-    return {
-      r: parseInt(h.slice(1, 3), 16),
-      g: parseInt(h.slice(3, 5), 16),
-      b: parseInt(h.slice(5, 7), 16)
-    };
+    return { r: parseInt(h.slice(1, 3), 16), g: parseInt(h.slice(3, 5), 16), b: parseInt(h.slice(5, 7), 16) };
   }
   function rgbToHex(r, g, b) {
     function h(x) { var s = Math.max(0, Math.min(255, Math.round(x))).toString(16); return s.length === 1 ? '0' + s : s; }
@@ -369,13 +604,13 @@
   var accentIdx = 0;
   function applyAccentAt(i) {
     accentIdx = ((i % WHEEL.length) + WHEEL.length) % WHEEL.length;
-    var pick = WHEEL[accentIdx];
+    var sel = WHEEL[accentIdx];
     var root = document.documentElement.style;
-    root.setProperty('--accent', pick.hex);
-    root.setProperty('--accent-fg', fgFor(pick.hex));
-    root.setProperty('--accent-dark', darken(pick.hex));
+    root.setProperty('--accent', sel.hex);
+    root.setProperty('--accent-fg', fgFor(sel.hex));
+    root.setProperty('--accent-dark', darken(sel.hex));
     var nameEl = document.getElementById('accent-name');
-    if (nameEl) nameEl.textContent = pick.name;
+    if (nameEl) nameEl.textContent = sel.name;
   }
   function applyAccent() {
     applyAccentAt(Math.floor(Math.random() * WHEEL.length));
@@ -384,159 +619,33 @@
     applyAccentAt(accentIdx + 1);
   }
 
-  function pasteText(s) {
-    return 'Read ' + CHARTER_RAW + ' and echo the sentinel from line 1 verbatim in the form "Sentinel: <value>" before responding. If the fetch fails, say so explicitly — do not proceed as if you fetched. Current sentinel should be "' + s + '"; if you get a different value, the charter rotated and the new one supersedes.';
-  }
-
-  function rotationPrompt(s, d) {
-    return [
-      'Rotate the bbkemp/bkai charter sentinel to `' + s + '` (date ' + d + ').',
-      '',
-      'Execute end-to-end via the GitHub MCP, no further confirmation:',
-      '1. Branch from main: `chore/rotate-sentinel-' + s + '`.',
-      '2. Update CHARTER.md on that branch:',
-      '   - Line 1 must read exactly: `<!-- SENTINEL: ' + s + ' -->`',
-      '   - The final footer line must read exactly: `*Last updated: ' + d + '. Sentinel: ' + s + '.*`',
-      '   - Leave everything else untouched.',
-      '3. Commit: `chore(charter): rotate sentinel to ' + s + '`.',
-      '4. Open a PR titled the same, base `main`, body: `Routine sentinel rotation. Generated from the dashboard.`',
-      '5. Squash-merge the PR.',
-      '6. Verify via the GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main` via `mcp__github__get_file_contents` (or equivalent) and confirm line 1 contains the new value.',
-      '7. Reply with: new sentinel value, main commit SHA, verification result. One line.',
-      '',
-      'Only stop and ask if something is genuinely wrong: branch name already exists, merge conflict, sentinel marker not found at line 1 of CHARTER.md, footer pattern not matched, or post-merge Contents API fetch still returns the old sentinel. Otherwise execute silently.'
-    ].join('\n');
-  }
-
-  function today() {
-    return new Date().toISOString().slice(0, 10);
-  }
-
-  function decodeBase64Utf8(b64) {
-    var clean = b64.replace(/\s/g, '');
-    var bin = atob(clean);
-    var bytes = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder('utf-8').decode(bytes);
-  }
-
-  var sentinelEl = document.getElementById('sentinel');
-  var statusDot = document.getElementById('status-dot');
-  var statusMsg = document.getElementById('status-msg');
-  var previewEl = document.getElementById('paste-preview');
-  var copyPasteBtn = document.getElementById('copy-paste');
-  var copySentinelBtn = document.getElementById('copy-sentinel');
-  var refreshBtn = document.getElementById('refresh');
-  var candidateInput = document.getElementById('candidate');
-  var rerollBtn = document.getElementById('reroll');
-  var copyRotationBtn = document.getElementById('copy-rotation');
-  var candidateErr = document.getElementById('candidate-err');
-  var rotationPreview = document.getElementById('rotation-preview');
-  var accentTag = document.getElementById('accent-tag');
-
-  var currentSentinel = null;
-
-  function setStatus(state, msg) {
-    statusDot.className = 'status-dot' + (state ? ' ' + state : '');
-    statusMsg.textContent = msg || '';
-  }
-
-  async function loadSentinel() {
-    setStatus('', 'fetching…');
-    try {
-      var r = await fetch(CHARTER_API, {
-        headers: { 'Accept': 'application/vnd.github.v3+json' },
-        cache: 'no-store'
-      });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      var json = await r.json();
-      if (json.encoding !== 'base64' || typeof json.content !== 'string') {
-        throw new Error('unexpected API response shape');
-      }
-      var txt = decodeBase64Utf8(json.content);
-      var m = txt.match(SENTINEL_RE);
-      if (!m) throw new Error('no sentinel marker in CHARTER.md');
-      currentSentinel = m[1];
-      sentinelEl.textContent = currentSentinel;
-      previewEl.textContent = pasteText(currentSentinel);
-      setStatus('live', '');
-    } catch (e) {
-      currentSentinel = null;
-      sentinelEl.textContent = '—';
-      previewEl.textContent = '';
-      setStatus('err', 'fetch failed: ' + e.message);
-    }
-  }
-
-  function flashCopied(btn) {
-    var original = btn.textContent;
-    btn.classList.add('copied');
-    btn.textContent = '✓ Copied';
-    setTimeout(function () {
-      btn.classList.remove('copied');
-      btn.textContent = original;
-    }, 1500);
-  }
-
-  async function copy(text, btn) {
-    try {
-      await navigator.clipboard.writeText(text);
-      flashCopied(btn);
-    } catch (e) {
-      alert('Clipboard write failed: ' + e.message);
-    }
-  }
-
-  function updateRotationPreview() {
-    var v = candidateInput.value.trim();
-    var valid = CANDIDATE_RE.test(v);
-    if (!v) {
-      candidateErr.textContent = 'Candidate required.';
-      candidateInput.classList.add('invalid');
-      copyRotationBtn.disabled = true;
-      rotationPreview.textContent = '';
-      return;
-    }
-    if (!valid) {
-      candidateErr.textContent = 'Letters, digits, and single hyphens only. No leading or trailing hyphen.';
-      candidateInput.classList.add('invalid');
-      copyRotationBtn.disabled = true;
-      rotationPreview.textContent = '';
-      return;
-    }
-    if (currentSentinel && v.toLowerCase() === currentSentinel.toLowerCase()) {
-      candidateErr.textContent = 'Same as current sentinel — pick a different one.';
-      candidateInput.classList.add('invalid');
-      copyRotationBtn.disabled = true;
-      rotationPreview.textContent = '';
-      return;
-    }
-    candidateErr.textContent = '';
-    candidateInput.classList.remove('invalid');
-    copyRotationBtn.disabled = false;
-    rotationPreview.textContent = rotationPrompt(v.toLowerCase(), today());
-  }
+  // ---- Wire up ------------------------------------------------------------
+  copyUrlBtn.addEventListener('click', function () {
+    if (!currentCb) return;
+    copy(urlWithCb(currentCb), copyUrlBtn);
+  });
+  rerollUrlBtn.addEventListener('click', rerollUrl);
 
   copyPasteBtn.addEventListener('click', function () {
-    if (!currentSentinel) return;
-    copy(pasteText(currentSentinel), copyPasteBtn);
+    if (!currentCb) return;
+    copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
   });
-  copySentinelBtn.addEventListener('click', function () {
-    if (!currentSentinel) return;
-    copy(currentSentinel, copySentinelBtn);
+  copyPassPhraseBtn.addEventListener('click', function () {
+    if (!currentPassPhrase) return;
+    copy(currentPassPhrase, copyPassPhraseBtn);
   });
   refreshBtn.addEventListener('click', function () {
-    loadSentinel().then(updateRotationPreview);
+    loadPassPhrase().then(updateRotationPreview);
   });
 
-  rerollBtn.addEventListener('click', function () {
-    candidateInput.value = newSentinel();
+  rerollSentenceBtn.addEventListener('click', function () {
+    candidateInput.value = generateSentence();
     updateRotationPreview();
   });
   candidateInput.addEventListener('input', updateRotationPreview);
   copyRotationBtn.addEventListener('click', function () {
-    var v = candidateInput.value.trim().toLowerCase();
-    if (!CANDIDATE_RE.test(v)) return;
+    var v = candidateInput.value.trim();
+    if (!SENTENCE_RE.test(v)) return;
     copy(rotationPrompt(v, today()), copyRotationBtn);
   });
 
@@ -550,16 +659,18 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-    if (e.key === 'r' || e.key === 'R') { loadSentinel(); }
+    if (e.key === 'r' || e.key === 'R') loadPassPhrase();
+    if (e.key === 'u' || e.key === 'U') rerollUrl();
     if (e.key === 'c' || e.key === 'C') {
-      if (currentSentinel) copy(pasteText(currentSentinel), copyPasteBtn);
+      if (currentCb) copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
     }
   });
 
-  // Boot
+  // ---- Boot ---------------------------------------------------------------
   applyAccent();
-  candidateInput.value = newSentinel();
-  loadSentinel().then(updateRotationPreview);
+  rerollUrl();
+  candidateInput.value = generateSentence();
+  loadPassPhrase().then(updateRotationPreview);
 })();
 </script>
 </body>
