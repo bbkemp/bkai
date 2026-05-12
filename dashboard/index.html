@@ -45,32 +45,19 @@
     line-height: 1;
     color: var(--title-red);
     margin: 0 0 16px;
-    letter-spacing: -0.025em;
+    letter-spacing: 1px;
     -webkit-text-stroke: 0.6px currentColor;
   }
   .sub {
     font-family: var(--sans);
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--label-blue);
     line-height: 1.6;
     max-width: 600px;
     -webkit-text-stroke: 0.2px currentColor;
-  }
-  .sub a {
-    color: var(--label-blue);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1.5px;
-  }
-  .sub .dot {
-    color: var(--title-red);
-    padding: 0 8px;
-    font-weight: 700;
-    font-size: 14px;
-    vertical-align: -1px;
   }
 
   .card {
@@ -86,7 +73,7 @@
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.21em;
     color: var(--ink);
     margin-bottom: 16px;
     display: flex;
@@ -137,32 +124,40 @@
     font-family: var(--mono);
     font-weight: 500;
     font-size: 18px;
-    background: var(--accent-dark);
+    background: var(--surface-2);
     border: 2px solid var(--ink);
     border-radius: 0;
-    color: var(--cream);
+    color: var(--accent);
     padding: 10px 14px;
     flex: 1;
     min-width: 240px;
     letter-spacing: -0.01em;
     outline: none;
-    transition: border-color 120ms, background 120ms;
+    transition: border-color 120ms;
   }
   input[type="text"]:focus { border-color: var(--accent); }
   input[type="text"].invalid {
     border-color: var(--danger);
-    color: var(--cream);
-    background: var(--accent-dark);
+    color: var(--danger);
   }
   input[type="text"]::selection { background: var(--accent); color: var(--cream); }
 
-  pre, code {
+  code {
     font-family: var(--mono);
     background: var(--surface-2);
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    padding: 1px 6px;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  pre {
+    font-family: var(--mono);
+    background: var(--accent-dark);
+    color: var(--cream);
     border: 2px solid var(--ink);
     border-radius: 0;
-  }
-  pre {
     padding: 12px 14px;
     font-size: 12px;
     line-height: 1.6;
@@ -170,15 +165,14 @@
     margin: 18px 0 0;
     white-space: pre-wrap;
     word-break: break-word;
-    color: var(--text);
+    scrollbar-color: var(--accent) var(--accent-dark);
+    scrollbar-width: thin;
   }
+  pre::-webkit-scrollbar { width: 10px; height: 10px; }
+  pre::-webkit-scrollbar-track { background: var(--accent-dark); }
+  pre::-webkit-scrollbar-thumb { background: var(--accent); border: 2px solid var(--accent-dark); }
+  pre::-webkit-scrollbar-corner { background: var(--accent-dark); }
   #rotation-preview { height: 140px; overflow-y: auto; }
-  code {
-    padding: 1px 6px;
-    font-size: 12px;
-    color: var(--text);
-    border-width: 1px;
-  }
 
   .status-dot {
     display: inline-block; width: 8px; height: 8px; border-radius: 50%;
@@ -205,33 +199,42 @@
   .note code { background: var(--surface-2); color: var(--ink); }
 
   .meta {
-    color: var(--ink);
+    color: var(--label-blue);
     font-size: 11px;
     margin-top: 36px;
     line-height: 1.9;
     font-weight: 500;
     letter-spacing: 0.04em;
   }
-  .meta a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  .meta a {
+    color: var(--label-blue);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1.25px;
+  }
   .kbd {
     font-family: var(--mono);
     font-size: 10.5px;
     padding: 1px 6px;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--label-blue);
     background: var(--surface);
     border-radius: 0;
-    color: var(--ink);
+    color: var(--label-blue);
   }
   .accent-tag {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.17em;
     font-size: 10.5px;
     font-weight: 700;
     color: var(--ink);
+    cursor: pointer;
+    user-select: none;
   }
+  .accent-tag:hover { filter: brightness(0.9); }
+  .accent-tag:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
   .accent-tag .swatch {
     display: inline-block;
     width: 12px; height: 12px;
@@ -240,7 +243,7 @@
   }
   .accent-tag b {
     color: var(--accent);
-    letter-spacing: 0.18em;
+    letter-spacing: 0.17em;
   }
 </style>
 </head>
@@ -250,8 +253,6 @@
     <h1 class="display">Bkai Compass</h1>
     <div class="sub">
       Helper for directional charter fetch sentinel rotation
-      <span class="dot">&bull;</span>
-      <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a>
     </div>
   </header>
 
@@ -287,7 +288,9 @@
   </div>
 
   <div class="meta">
-    <span class="accent-tag"><span class="swatch"></span> accent <b id="accent-name">—</b></span><br>
+    <span class="accent-tag" id="accent-tag" role="button" tabindex="0" title="Click to cycle to the next wheel hue">
+      <span class="swatch"></span> accent <b id="accent-name">—</b>
+    </span><br>
     Charter: <a id="charter-link" href="https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md" target="_blank" rel="noopener">raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md</a><br>
     Repo: <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a><br>
     Press <span class="kbd">R</span> to refresh, <span class="kbd">C</span> to copy paste-text.
@@ -302,7 +305,7 @@
   var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
   var CANDIDATE_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
 
-  // 12 hues from the Grumbacher Color Compass labeled ring.
+  // 12 hues from the Grumbacher Color Compass labeled ring, clockwise order.
   var WHEEL = [
     { name: 'yellow',        hex: '#f5c828' },
     { name: 'yellow-orange', hex: '#e69a2f' },
@@ -318,7 +321,6 @@
     { name: 'yellow-green',  hex: '#8fb42f' }
   ];
 
-  // Sentinel adj/noun lists (unchanged).
   var ADJ = ['marigold','corduroy','granite','petrichor','ember','tungsten','obsidian','copper','azure','saffron','indigo','onyx','flannel','cobalt','iron','amber','sable','vermillion','jade','crimson','glacier','umber','quartz','slate','olive','rust','linen','flint','dune','ivory','cinder','beryl','agate','spruce','willow','clover','heather','myrtle','sienna','ochre'];
   var NOUN = ['piston','lighthouse','mailbox','anchor','lantern','compass','satchel','wrench','beacon','rivet','helm','sextant','flask','ledger','quill','hatch','spool','gauge','toggle','crank','bolt','grommet','axle','tether','spindle','wedge','plinth','dowel','stencil','sprocket','bellows','caliper','jigsaw','mortar','pulley','ratchet','sluice','tonnage','vise','yoke'];
 
@@ -353,23 +355,28 @@
     return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
   }
   function fgFor(hex) {
-    // Match the Color Compass: black ink on light hues (yellow / yellow-orange /
-    // orange / yellow-green), cream on the deep ones.
     return luminance(hex) > 0.42 ? '#1a140e' : '#faf3df';
   }
   function darken(hex) {
-    // Blend 70% toward off-black to produce the wheel's innermost-ring shade.
     return mix(hex, '#0d0a06', 0.7);
   }
 
-  function applyAccent() {
-    var pick = WHEEL[Math.floor(Math.random() * WHEEL.length)];
+  var accentIdx = 0;
+  function applyAccentAt(i) {
+    accentIdx = ((i % WHEEL.length) + WHEEL.length) % WHEEL.length;
+    var pick = WHEEL[accentIdx];
     var root = document.documentElement.style;
     root.setProperty('--accent', pick.hex);
     root.setProperty('--accent-fg', fgFor(pick.hex));
     root.setProperty('--accent-dark', darken(pick.hex));
     var nameEl = document.getElementById('accent-name');
     if (nameEl) nameEl.textContent = pick.name;
+  }
+  function applyAccent() {
+    applyAccentAt(Math.floor(Math.random() * WHEEL.length));
+  }
+  function cycleAccent() {
+    applyAccentAt(accentIdx + 1);
   }
 
   function pasteText(s) {
@@ -420,6 +427,7 @@
   var copyRotationBtn = document.getElementById('copy-rotation');
   var candidateErr = document.getElementById('candidate-err');
   var rotationPreview = document.getElementById('rotation-preview');
+  var accentTag = document.getElementById('accent-tag');
 
   var currentSentinel = null;
 
@@ -525,6 +533,14 @@
     var v = candidateInput.value.trim().toLowerCase();
     if (!CANDIDATE_RE.test(v)) return;
     copy(rotationPrompt(v, today()), copyRotationBtn);
+  });
+
+  accentTag.addEventListener('click', cycleAccent);
+  accentTag.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      cycleAccent();
+    }
   });
 
   document.addEventListener('keydown', function (e) {
