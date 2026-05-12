@@ -4,6 +4,14 @@ Use this anchor when working on Wii U / DS / retro gaming setup.
 
 ---
 
+## Fetch order before responding
+
+1. `CHARTER.md` from this repo. Echo the sentinel in the form `Sentinel: <value>` before responding.
+2. Then read the rest of this file for project-specific context.
+3. If recommending a button sequence, install step, or button-hold timing — verify from the actual current guide (`web_fetch`) before stating. Familiarity is the verify-trigger.
+
+---
+
 **Hardware:**
 - Wii U with Aroma CFW (in progress / debugging)
 - SD card mounted as `SHEDU` on Mac
@@ -27,9 +35,4 @@ Use this anchor when working on Wii U / DS / retro gaming setup.
 - Power cycling the Wii U costs real time. Every Mac↔Wii U round trip should accomplish multiple things at once.
 - Bryan uses `pbcopy` and terminal diagnostics. Give him copy-pasteable scripts that return ground truth in one shot.
 - Screenshots are how Bryan gives state. Read them carefully. Don't infer.
-
-**Before responding:**
-1. Read `../CHARTER.md`.
-2. Search past chats for prior Wii U / homebrew context.
-3. If recommending a button sequence, install step, or button-hold timing — verify from the actual current guide (web_fetch) before stating. Familiarity is the verify-trigger.
-4. If Bryan asks "did you read the instructions?" — the answer is yes only if you actually read them. No exceptions.
+- If Bryan asks "did you read the instructions?" — the answer is yes only if you actually read them. No exceptions. (Charter Rule 2.)
