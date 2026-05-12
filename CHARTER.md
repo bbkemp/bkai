@@ -1,4 +1,4 @@
-<!-- SENTINEL: sable-crank-5328 -->
+<!-- SENTINEL: rust-bolt-4404 -->
 # CHARTER
 
 Non-negotiable rules for how Claude operates with Bryan Kemp.
@@ -168,4 +168,4 @@ If any of these happen again, the rule already exists. The failure is the rule n
 
 ---
 
-*Last updated: 2026-05-12. Sentinel: sable-crank-5328.*
+*Last updated: 2026-05-12. Sentinel: rust-bolt-4404.*
