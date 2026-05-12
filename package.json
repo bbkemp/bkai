@@ -1,0 +1,10 @@
+{
+  "name": "bkai",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Personal AI operating contract — charter, anchors, and cross-LLM exports.",
+  "type": "module",
+  "scripts": {
+    "skills:export": "node scripts/export-skills.mjs"
+  }
+}
