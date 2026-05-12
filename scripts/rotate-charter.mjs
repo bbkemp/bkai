@@ -66,9 +66,11 @@ function updatePassPhraseParagraph(text) {
   return text;
 }
 
-function updateFooter(text, sentence, date) {
-  // Footer evolved across renames: "Sentinel: X" → "Proof: X" → "Pass phrase: X".
-  const newFooter = `*Last updated: ${date}. Pass phrase: ${sentence}.*`;
+function updateFooter(text, date) {
+  // Footer no longer carries the pass phrase — that was a plaintext leak. A
+  // lazy implementation could grep `Pass phrase:` and skip the marker traversal
+  // entirely. Markers are now the only path to the phrase.
+  const newFooter = `*Last updated: ${date}.*`;
   if (/\*Last updated:[^*\n]+\*/.test(text)) {
     return text.replace(/\*Last updated:[^*\n]+\*/, newFooter);
   }
@@ -203,7 +205,7 @@ function main() {
 
   const date = new Date().toISOString().slice(0, 10);
   let result = merged.join('\n');
-  result = updateFooter(result, sentence, date);
+  result = updateFooter(result, date);
 
   writeFileSync(CHARTER_PATH, result);
 
