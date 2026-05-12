@@ -5,6 +5,7 @@
   "description": "Personal AI operating contract — charter, anchors, and cross-LLM exports.",
   "type": "module",
   "scripts": {
-    "skills:export": "node scripts/export-skills.mjs"
+    "skills:export": "node scripts/export-skills.mjs",
+    "charter:rotate": "node scripts/rotate-charter.mjs"
   }
 }
