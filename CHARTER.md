@@ -1,4 +1,4 @@
-<!-- SENTINEL: corduroy-wrench-7035 -->
+<!-- SENTINEL: sable-crank-5328 -->
 # CHARTER
 
 Non-negotiable rules for how Claude operates with Bryan Kemp.
@@ -168,4 +168,4 @@ If any of these happen again, the rule already exists. The failure is the rule n
 
 ---
 
-*Last updated: 2026-05-12. Sentinel: corduroy-wrench-7035.*
+*Last updated: 2026-05-12. Sentinel: sable-crank-5328.*
