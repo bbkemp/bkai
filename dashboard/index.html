@@ -412,8 +412,11 @@
     return new TextDecoder('utf-8').decode(bytes);
   }
 
-  function pasteText(cbUrl, proof) {
-    return 'Read ' + cbUrl + '. Find every [[token:N:WORD]] marker in the file, sort by N ascending, and echo the assembled sentence verbatim in the form "Proof: <sentence>" before responding. If the fetch fails or the markers cannot be found, say so explicitly — do not proceed as if you fetched. Current expected proof: "' + proof + '". If you get a different sentence, the charter rotated and the new one supersedes.';
+  function pasteText(cbUrl) {
+    // Intentionally does NOT include the expected proof sentence. The whole point
+    // is that Claude must reconstruct it from the file. Bryan verifies the echoed
+    // value against the dashboard's "Current proof" display.
+    return 'Read ' + cbUrl + '. Find every [[token:N:WORD]] marker in the file, sort by N ascending, and echo the assembled sentence verbatim in the form "Proof: <sentence>" before responding. If the fetch fails or no markers are found, say so explicitly — do not proceed as if you fetched.';
   }
 
   function rotationPrompt(sentence, dateStr) {
@@ -428,10 +431,10 @@
       '5. `git add CHARTER.md && git commit -m "chore(charter): rotate proof — ' + sentence + '" && git push -u origin HEAD`.',
       '6. Open PR via GitHub MCP (title same as commit, base main, body "Routine proof rotation. Generated from the dashboard.").',
       '7. Squash-merge the PR.',
-      '8. Verify via GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main`, extract all [[token:N:WORD]] markers, sort by N, confirm the assembled sentence equals "' + sentence + '".',
-      '9. Reply with: new proof sentence, main commit SHA, verification result. One line.',
+      '8. Verify via GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main`, extract all [[token:N:WORD]] markers, sort by N, echo the assembled sentence in the form "Proof: <sentence>". Do NOT compare it to anything in this prompt — just echo what you reconstructed. Bryan verifies against the dashboard.',
+      '9. Reply with: the echoed Proof line + the main commit SHA. One line.',
       '',
-      'Only stop and ask if something is genuinely wrong: branch name already exists, script reports a token conflict, merge conflict, post-merge Contents API fetch returns the old proof. Otherwise execute silently.'
+      'Only stop and ask if something is genuinely wrong: branch name already exists, script reports a token conflict, merge conflict, post-merge Contents API fetch produces no markers. Otherwise execute silently.'
     ].join('\n');
   }
 
@@ -474,9 +477,8 @@
     currentCb = cb;
     var url = urlWithCb(cb);
     cbUrlEl.textContent = url;
-    if (currentProof) {
-      pastePreviewEl.textContent = pasteText(url, currentProof);
-    }
+    // Paste-text only depends on the URL — no proof leak in the prompt.
+    pastePreviewEl.textContent = pasteText(url);
   }
 
   function rerollUrl() {
@@ -501,7 +503,6 @@
       if (!proof) throw new Error('no [[token:N:WORD]] markers in CHARTER.md');
       currentProof = proof;
       proofEl.textContent = proof;
-      pastePreviewEl.textContent = pasteText(urlWithCb(currentCb), proof);
       setStatus('live', '');
     } catch (e) {
       currentProof = null;
@@ -626,8 +627,8 @@
   rerollUrlBtn.addEventListener('click', rerollUrl);
 
   copyPasteBtn.addEventListener('click', function () {
-    if (!currentProof || !currentCb) return;
-    copy(pasteText(urlWithCb(currentCb), currentProof), copyPasteBtn);
+    if (!currentCb) return;
+    copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
   });
   copyProofBtn.addEventListener('click', function () {
     if (!currentProof) return;
@@ -661,7 +662,7 @@
     if (e.key === 'r' || e.key === 'R') loadProof();
     if (e.key === 'u' || e.key === 'U') rerollUrl();
     if (e.key === 'c' || e.key === 'C') {
-      if (currentProof && currentCb) copy(pasteText(urlWithCb(currentCb), currentProof), copyPasteBtn);
+      if (currentCb) copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
     }
   });
 
