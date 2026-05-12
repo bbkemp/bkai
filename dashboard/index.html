@@ -3,115 +3,232 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bkai dashboard</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111'/%3E%3Ctext x='50%25' y='54%25' font-family='-apple-system,system-ui,sans-serif' font-size='32' font-weight='700' fill='%23f5b800' text-anchor='middle' dominant-baseline='middle'%3Eb%3C/text%3E%3C/svg%3E">
+<title>Bkai Compass</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f3ead4'/%3E%3Ctext x='50%25' y='62%25' font-family='Georgia,serif' font-style='italic' font-size='42' font-weight='700' fill='%23c0282a' text-anchor='middle' dominant-baseline='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Lobster&display=swap">
 <style>
   :root {
-    --bg: #0c0c0d;
-    --surface: #16161a;
-    --border: #26262b;
-    --text: #ececec;
-    --muted: #8a8a90;
-    --accent: #f5b800;
-    --danger: #ef5350;
-    --success: #66bb6a;
-    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+    --bg: #f3ead4;
+    --surface: #faf3df;
+    --surface-2: #ede2c4;
+    --border: #d8c89e;
+    --text: #1f1b15;
+    --muted: #6e6450;
+    --danger: #c0282a;
+    --success: #2a8c49;
+    --accent: #c0282a;
+    --accent-fg: #faf3df;
+    --display: 'Lobster', Georgia, serif;
+    --sans: 'DM Sans', ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
+    --mono: 'DM Mono', ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
   body {
-    font-family: ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
+    font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  .app { max-width: 720px; margin: 0 auto; padding: 28px 22px 60px; }
-  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
-  h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); font-size: 12px; }
+  .app { max-width: 740px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header { margin-bottom: 36px; }
+  .brand {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.28em;
+    color: var(--text);
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  h1.display {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 68px;
+    line-height: 0.96;
+    color: var(--accent);
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .sub {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 560px;
+  }
   .sub a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+  .sub .dot { color: var(--accent); padding: 0 6px; font-weight: 700; }
+
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 22px 20px;
-    margin-bottom: 14px;
+    border-radius: 6px;
+    padding: 26px 24px 24px;
+    margin-bottom: 18px;
+    position: relative;
   }
   .label {
-    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .sentinel {
     font-family: var(--mono);
-    font-size: 26px;
+    font-weight: 500;
+    font-size: 30px;
     color: var(--accent);
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     word-break: break-all;
-    line-height: 1.15;
+    line-height: 1.1;
     letter-spacing: -0.01em;
   }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
   button {
-    font-family: inherit; font-size: 13.5px;
-    background: var(--accent); color: #000; border: 0; border-radius: 7px;
-    padding: 10px 16px; cursor: pointer; font-weight: 600;
-    transition: filter 120ms, background 120ms, color 120ms;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 10px 18px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: filter 120ms, background 120ms, color 120ms, border-color 120ms;
   }
   button.secondary {
-    background: transparent; color: var(--text); border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
     font-weight: 500;
   }
-  button:hover { filter: brightness(1.08); }
-  button:active { filter: brightness(0.92); }
+  button:hover { filter: brightness(0.95); }
+  button.secondary:hover { background: var(--surface-2); filter: none; }
+  button:active { filter: brightness(0.88); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
-  button:disabled:hover { filter: none; }
-  button.copied { background: var(--success); color: #000; }
-  button.copied.secondary { border-color: var(--success); color: var(--success); background: transparent; }
+  button:disabled:hover { filter: none; background: var(--accent); }
+  button.secondary:disabled:hover { background: transparent; }
+  button.copied { background: var(--success) !important; color: #faf3df !important; border-color: var(--success) !important; }
+
   input[type="text"] {
     font-family: var(--mono);
+    font-weight: 500;
     font-size: 18px;
-    background: #000;
+    background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: 4px;
     color: var(--accent);
     padding: 10px 14px;
     flex: 1;
     min-width: 240px;
     letter-spacing: -0.01em;
     outline: none;
-    transition: border-color 120ms;
+    transition: border-color 120ms, background 120ms;
   }
-  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]:focus { border-color: var(--accent); background: var(--surface); }
   input[type="text"].invalid { border-color: var(--danger); color: var(--danger); }
+
   pre, code {
     font-family: var(--mono);
-    background: #000;
+    background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 4px;
   }
   pre {
-    padding: 12px 14px; font-size: 12px; line-height: 1.55;
-    overflow-x: auto; margin: 14px 0 0; white-space: pre-wrap; word-break: break-word;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 16px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
   }
   #rotation-preview { height: 140px; overflow-y: auto; }
-  code { padding: 1px 6px; font-size: 12px; }
+  code { padding: 1px 6px; font-size: 12px; color: var(--text); }
+
   .status-dot {
-    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
     background: var(--muted); vertical-align: middle;
   }
-  .status-dot.live { background: var(--success); box-shadow: 0 0 0 3px rgba(102,187,106,0.18); }
-  .status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(239,83,80,0.18); }
-  .err-msg { color: var(--danger); font-size: 12px; margin-left: 4px; }
-  .meta { color: var(--muted); font-size: 11.5px; margin-top: 28px; line-height: 1.7; }
+  .status-dot.live { background: var(--success); box-shadow: 0 0 0 3px rgba(42,140,73,0.18); }
+  .status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(192,40,42,0.18); }
+  .err-msg { color: var(--danger); font-size: 12px; margin-left: 4px; font-weight: 500; }
+
+  .note {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+  .note code { background: var(--surface-2); color: var(--text); }
+
+  .meta {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 36px;
+    line-height: 1.9;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
   .meta a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
-  .note { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; line-height: 1.5; }
-  .kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); }
+  .kbd {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 3px;
+    color: var(--muted);
+  }
+  .accent-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .accent-tag .swatch {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 1px solid var(--border);
+  }
+  .accent-tag b {
+    color: var(--accent);
+    letter-spacing: 0.18em;
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div>
-      <h1>bkai dashboard</h1>
-      <div class="sub">Helper for <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">claude-ops</a>. Source of truth is the repo.</div>
+    <span class="brand">Bkai</span>
+    <h1 class="display">Compass</h1>
+    <div class="sub">
+      An illustrated helper for sentinel rotation
+      <span class="dot">·</span> charter fetch
+      <span class="dot">·</span> source of truth at <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a>
     </div>
   </header>
 
@@ -133,7 +250,7 @@
   <div class="card">
     <div class="label">Rotate sentinel</div>
     <div class="note">
-      Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; edit CHARTER.md &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
+      Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; edit <code>CHARTER.md</code> &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
     </div>
     <div class="row">
       <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New sentinel candidate">
@@ -147,6 +264,7 @@
   </div>
 
   <div class="meta">
+    <span class="accent-tag"><span class="swatch"></span> accent <b id="accent-name">—</b></span><br>
     Charter: <a id="charter-link" href="https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md" target="_blank" rel="noopener">raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md</a><br>
     Repo: <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a><br>
     Press <span class="kbd">R</span> to refresh, <span class="kbd">C</span> to copy paste-text.
@@ -161,6 +279,23 @@
   var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
   var CANDIDATE_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
 
+  // 12 hues from the Grumbacher Color Compass labeled ring.
+  var WHEEL = [
+    { name: 'yellow',        hex: '#f5c828' },
+    { name: 'yellow-orange', hex: '#e69a2f' },
+    { name: 'orange',        hex: '#de7327' },
+    { name: 'red-orange',    hex: '#d5462a' },
+    { name: 'red',           hex: '#bf282a' },
+    { name: 'red-violet',    hex: '#852b6b' },
+    { name: 'violet',        hex: '#5a2a78' },
+    { name: 'blue-violet',   hex: '#372d7a' },
+    { name: 'blue',          hex: '#22478a' },
+    { name: 'blue-green',    hex: '#1f7e6e' },
+    { name: 'green',         hex: '#288c47' },
+    { name: 'yellow-green',  hex: '#8fb42f' }
+  ];
+
+  // Sentinel adj/noun lists (unchanged).
   var ADJ = ['marigold','corduroy','granite','petrichor','ember','tungsten','obsidian','copper','azure','saffron','indigo','onyx','flannel','cobalt','iron','amber','sable','vermillion','jade','crimson','glacier','umber','quartz','slate','olive','rust','linen','flint','dune','ivory','cinder','beryl','agate','spruce','willow','clover','heather','myrtle','sienna','ochre'];
   var NOUN = ['piston','lighthouse','mailbox','anchor','lantern','compass','satchel','wrench','beacon','rivet','helm','sextant','flask','ledger','quill','hatch','spool','gauge','toggle','crank','bolt','grommet','axle','tether','spindle','wedge','plinth','dowel','stencil','sprocket','bellows','caliper','jigsaw','mortar','pulley','ratchet','sluice','tonnage','vise','yoke'];
 
@@ -169,6 +304,32 @@
     var n = NOUN[Math.floor(Math.random() * NOUN.length)];
     var d = String(Math.floor(1000 + Math.random() * 9000));
     return a + '-' + n + '-' + d;
+  }
+
+  function lin(c) {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function luminance(hex) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  }
+  function fgFor(hex) {
+    // Match the Color Compass: black ink on light hues (yellow / yellow-orange /
+    // orange / yellow-green), cream on the deep ones. Threshold tuned to the
+    // wheel's actual choices.
+    return luminance(hex) > 0.42 ? '#1f1b15' : '#faf3df';
+  }
+
+  function applyAccent() {
+    var pick = WHEEL[Math.floor(Math.random() * WHEEL.length)];
+    var root = document.documentElement.style;
+    root.setProperty('--accent', pick.hex);
+    root.setProperty('--accent-fg', fgFor(pick.hex));
+    var nameEl = document.getElementById('accent-name');
+    if (nameEl) nameEl.textContent = pick.name;
   }
 
   function pasteText(s) {
@@ -335,6 +496,7 @@
   });
 
   // Boot
+  applyAccent();
   candidateInput.value = newSentinel();
   loadSentinel().then(updateRotationPreview);
 })();
