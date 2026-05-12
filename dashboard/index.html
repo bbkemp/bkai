@@ -91,6 +91,7 @@
     padding: 12px 14px; font-size: 12px; line-height: 1.55;
     overflow-x: auto; margin: 14px 0 0; white-space: pre-wrap; word-break: break-word;
   }
+  #rotation-preview { height: 140px; overflow-y: auto; }
   code { padding: 1px 6px; font-size: 12px; }
   .status-dot {
     display: inline-block; width: 6px; height: 6px; border-radius: 50%;
@@ -186,10 +187,10 @@
       '3. Commit: `chore(charter): rotate sentinel to ' + s + '`.',
       '4. Open a PR titled the same, base `main`, body: `Routine sentinel rotation. Generated from the dashboard.`',
       '5. Squash-merge the PR.',
-      '6. Verify: re-fetch raw CHARTER.md and confirm line 1 contains the new value.',
+      '6. Verify via the GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main` via `mcp__github__get_file_contents` (or equivalent) and confirm line 1 contains the new value.',
       '7. Reply with: new sentinel value, main commit SHA, verification result. One line.',
       '',
-      'Only stop and ask if something is genuinely wrong: branch name already exists, merge conflict, sentinel marker not found at line 1 of CHARTER.md, footer pattern not matched, or post-merge fetch still returns the old sentinel. Otherwise execute silently.'
+      'Only stop and ask if something is genuinely wrong: branch name already exists, merge conflict, sentinel marker not found at line 1 of CHARTER.md, footer pattern not matched, or post-merge Contents API fetch still returns the old sentinel. Otherwise execute silently.'
     ].join('\n');
   }
 
