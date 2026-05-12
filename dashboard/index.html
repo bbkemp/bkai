@@ -61,8 +61,26 @@
   }
   button:hover { filter: brightness(1.08); }
   button:active { filter: brightness(0.92); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button:disabled:hover { filter: none; }
   button.copied { background: var(--success); color: #000; }
   button.copied.secondary { border-color: var(--success); color: var(--success); background: transparent; }
+  input[type="text"] {
+    font-family: var(--mono);
+    font-size: 18px;
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--accent);
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 240px;
+    letter-spacing: -0.01em;
+    outline: none;
+    transition: border-color 120ms;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"].invalid { border-color: var(--danger); color: var(--danger); }
   pre, code {
     font-family: var(--mono);
     background: #000;
@@ -84,8 +102,6 @@
   .meta { color: var(--muted); font-size: 11.5px; margin-top: 28px; line-height: 1.7; }
   .meta a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
   .note { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; line-height: 1.5; }
-  .candidate-wrap { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .candidate-wrap:empty { display: none; }
   .kbd { font-family: var(--mono); font-size: 11px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); }
 </style>
 </head>
@@ -116,12 +132,17 @@
   <div class="card">
     <div class="label">Rotate sentinel</div>
     <div class="note">
-      Generates a fresh candidate. Replace line 1 of <code>CHARTER.md</code> and the footer date line, commit, push. The new value goes live as soon as <code>main</code> updates.
+      Edit if you want, then copy and paste the rotation prompt to Claude. Claude does branch &rarr; edit CHARTER.md &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify with no further interaction. Only asks if something's genuinely wrong.
     </div>
     <div class="row">
-      <button id="generate" type="button">Generate new candidate</button>
+      <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New sentinel candidate">
+      <button class="secondary" id="reroll" type="button" title="Generate another random candidate">&#8635; Reroll</button>
     </div>
-    <div class="candidate-wrap" id="generated"></div>
+    <div id="candidate-err" class="err-msg" style="margin: 8px 0 0; min-height: 14px;"></div>
+    <div class="row" style="margin-top: 14px;">
+      <button id="copy-rotation" type="button">Copy rotation prompt</button>
+    </div>
+    <pre id="rotation-preview" aria-label="Rotation prompt preview"></pre>
   </div>
 
   <div class="meta">
@@ -136,6 +157,7 @@
   'use strict';
   var CHARTER_RAW = 'https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md';
   var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
+  var CANDIDATE_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
 
   var ADJ = ['marigold','corduroy','granite','petrichor','ember','tungsten','obsidian','copper','azure','saffron','indigo','onyx','flannel','cobalt','iron','amber','sable','vermillion','jade','crimson','glacier','umber','quartz','slate','olive','rust','linen','flint','dune','ivory','cinder','beryl','agate','spruce','willow','clover','heather','myrtle','sienna','ochre'];
   var NOUN = ['piston','lighthouse','mailbox','anchor','lantern','compass','satchel','wrench','beacon','rivet','helm','sextant','flask','ledger','quill','hatch','spool','gauge','toggle','crank','bolt','grommet','axle','tether','spindle','wedge','plinth','dowel','stencil','sprocket','bellows','caliper','jigsaw','mortar','pulley','ratchet','sluice','tonnage','vise','yoke'];
@@ -151,6 +173,26 @@
     return 'Read ' + CHARTER_RAW + ' and echo the sentinel from line 1 verbatim in the form "Sentinel: <value>" before responding. If the fetch fails, say so explicitly — do not proceed as if you fetched. Current sentinel should be "' + s + '"; if you get a different value, the charter rotated and the new one supersedes.';
   }
 
+  function rotationPrompt(s, d) {
+    return [
+      'Rotate the bbkemp/bkai charter sentinel to `' + s + '` (date ' + d + ').',
+      '',
+      'Execute end-to-end via the GitHub MCP, no further confirmation:',
+      '1. Branch from main: `chore/rotate-sentinel-' + s + '`.',
+      '2. Update CHARTER.md on that branch:',
+      '   - Line 1 must read exactly: `<!-- SENTINEL: ' + s + ' -->`',
+      '   - The final footer line must read exactly: `*Last updated: ' + d + '. Sentinel: ' + s + '.*`',
+      '   - Leave everything else untouched.',
+      '3. Commit: `chore(charter): rotate sentinel to ' + s + '`.',
+      '4. Open a PR titled the same, base `main`, body: `Routine sentinel rotation. Generated from the dashboard.`',
+      '5. Squash-merge the PR.',
+      '6. Verify: re-fetch raw CHARTER.md and confirm line 1 contains the new value.',
+      '7. Reply with: new sentinel value, main commit SHA, verification result. One line.',
+      '',
+      'Only stop and ask if something is genuinely wrong: branch name already exists, merge conflict, sentinel marker not found at line 1 of CHARTER.md, footer pattern not matched, or post-merge fetch still returns the old sentinel. Otherwise execute silently.'
+    ].join('\n');
+  }
+
   function today() {
     return new Date().toISOString().slice(0, 10);
   }
@@ -162,8 +204,11 @@
   var copyPasteBtn = document.getElementById('copy-paste');
   var copySentinelBtn = document.getElementById('copy-sentinel');
   var refreshBtn = document.getElementById('refresh');
-  var generateBtn = document.getElementById('generate');
-  var generatedEl = document.getElementById('generated');
+  var candidateInput = document.getElementById('candidate');
+  var rerollBtn = document.getElementById('reroll');
+  var copyRotationBtn = document.getElementById('copy-rotation');
+  var candidateErr = document.getElementById('candidate-err');
+  var rotationPreview = document.getElementById('rotation-preview');
 
   var currentSentinel = null;
 
@@ -211,6 +256,36 @@
     }
   }
 
+  function updateRotationPreview() {
+    var v = candidateInput.value.trim();
+    var valid = CANDIDATE_RE.test(v);
+    if (!v) {
+      candidateErr.textContent = 'Candidate required.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    if (!valid) {
+      candidateErr.textContent = 'Letters, digits, and single hyphens only. No leading or trailing hyphen.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    if (currentSentinel && v.toLowerCase() === currentSentinel.toLowerCase()) {
+      candidateErr.textContent = 'Same as current sentinel — pick a different one.';
+      candidateInput.classList.add('invalid');
+      copyRotationBtn.disabled = true;
+      rotationPreview.textContent = '';
+      return;
+    }
+    candidateErr.textContent = '';
+    candidateInput.classList.remove('invalid');
+    copyRotationBtn.disabled = false;
+    rotationPreview.textContent = rotationPrompt(v.toLowerCase(), today());
+  }
+
   copyPasteBtn.addEventListener('click', function () {
     if (!currentSentinel) return;
     copy(pasteText(currentSentinel), copyPasteBtn);
@@ -219,32 +294,19 @@
     if (!currentSentinel) return;
     copy(currentSentinel, copySentinelBtn);
   });
-  refreshBtn.addEventListener('click', loadSentinel);
+  refreshBtn.addEventListener('click', function () {
+    loadSentinel().then(updateRotationPreview);
+  });
 
-  generateBtn.addEventListener('click', function () {
-    var candidate = newSentinel();
-    var d = today();
-    var line1 = '<!-- SENTINEL: ' + candidate + ' -->';
-    var footer = '*Last updated: ' + d + '. Sentinel: ' + candidate + '.*';
-
-    generatedEl.innerHTML =
-      '<div class="label">Candidate</div>' +
-      '<div class="sentinel" style="font-size:20px;">' + candidate + '</div>' +
-      '<div class="row">' +
-        '<button class="secondary" data-copy="value">Copy value</button>' +
-        '<button class="secondary" data-copy="line1">Copy line 1 replacement</button>' +
-        '<button class="secondary" data-copy="footer">Copy footer line</button>' +
-      '</div>' +
-      '<pre>Line 1 (replace existing comment):\n' + line1.replace(/</g, '&lt;') + '\n\nFooter (last line of file):\n' + footer + '</pre>';
-
-    var buttons = generatedEl.querySelectorAll('button[data-copy]');
-    buttons.forEach(function (b) {
-      b.addEventListener('click', function () {
-        var which = b.getAttribute('data-copy');
-        var text = which === 'value' ? candidate : (which === 'line1' ? line1 : footer);
-        copy(text, b);
-      });
-    });
+  rerollBtn.addEventListener('click', function () {
+    candidateInput.value = newSentinel();
+    updateRotationPreview();
+  });
+  candidateInput.addEventListener('input', updateRotationPreview);
+  copyRotationBtn.addEventListener('click', function () {
+    var v = candidateInput.value.trim().toLowerCase();
+    if (!CANDIDATE_RE.test(v)) return;
+    copy(rotationPrompt(v, today()), copyRotationBtn);
   });
 
   document.addEventListener('keydown', function (e) {
@@ -255,7 +317,9 @@
     }
   });
 
-  loadSentinel();
+  // Boot
+  candidateInput.value = newSentinel();
+  loadSentinel().then(updateRotationPreview);
 })();
 </script>
 </body>
