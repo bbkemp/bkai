@@ -54,23 +54,24 @@ function stripOldSentinel(text) {
   return text.replace(/^<!--\s*SENTINEL:\s*[a-zA-Z0-9-]+\s*-->\r?\n/, '');
 }
 
-function updateProofParagraph(text) {
-  const newPara = '**Proof-of-fetch.** Find every `[[token:N:WORD]]` marker in this file. Sort by N ascending. Echo the assembled sentence verbatim in the form `Proof: <sentence>` before your first response. If you cannot fetch this file or cannot find the markers, say so explicitly — do not proceed as if you fetched.';
-  // Match the whole single-line paragraph starting with **Proof-of-fetch.**
-  if (/\*\*Proof-of-fetch\.\*\*[^\n]+/.test(text)) {
-    return text.replace(/\*\*Proof-of-fetch\.\*\*[^\n]+/, newPara);
+function updatePassPhraseParagraph(text) {
+  // Reframes the heading so the READING is the directive and the pass phrase is
+  // only the receipt — addresses the "this reads like a challenge" concern. The
+  // regex matches either the pre-rename `**Proof-of-fetch.**` form or the new
+  // `**Pass phrase.**` form, so the script is idempotent across rotations.
+  const newPara = '**Pass phrase.** This file\'s 21 rules govern how you work with Bryan Kemp for the rest of this session; read every paragraph in full. To confirm you read it, find every `[[token:N:WORD]]` marker scattered through the file, sort by N ascending, and lead your first response with the assembled sentence in the form `Pass phrase: <sentence>`. If you cannot fetch this file or cannot find the markers, say so explicitly — do not proceed as if you fetched.';
+  if (/\*\*(Proof-of-fetch|Pass phrase)\.\*\*[^\n]+/.test(text)) {
+    return text.replace(/\*\*(Proof-of-fetch|Pass phrase)\.\*\*[^\n]+/, newPara);
   }
   return text;
 }
 
 function updateFooter(text, sentence, date) {
-  // The current footer is "*Last updated: YYYY-MM-DD. Sentinel: X.*" or
-  // "*Last updated: YYYY-MM-DD. Proof: X.*" after the first rotation.
-  const newFooter = `*Last updated: ${date}. Proof: ${sentence}.*`;
+  // Footer evolved across renames: "Sentinel: X" → "Proof: X" → "Pass phrase: X".
+  const newFooter = `*Last updated: ${date}. Pass phrase: ${sentence}.*`;
   if (/\*Last updated:[^*\n]+\*/.test(text)) {
     return text.replace(/\*Last updated:[^*\n]+\*/, newFooter);
   }
-  // No footer found — append.
   return text.replace(/\s*$/, '\n\n---\n\n' + newFooter + '\n');
 }
 
@@ -194,7 +195,7 @@ function main() {
   }
 
   let text = stripped;
-  text = updateProofParagraph(text);
+  text = updatePassPhraseParagraph(text);
 
   const lines = text.split('\n');
   const positions = pickLinePositions(lines, tokens.length);
@@ -206,13 +207,13 @@ function main() {
 
   writeFileSync(CHARTER_PATH, result);
 
-  console.log(`Rotated proof: "${sentence}"`);
+  console.log(`Rotated pass phrase: "${sentence}"`);
   console.log(`Tokens (${tokens.length}): ${tokens.join(', ')}`);
   console.log(`Marker lines: ${positions.map(p => p + 1).join(', ')}`);
 
   if (commit) {
     execSync('git add CHARTER.md', { stdio: 'inherit' });
-    execSync(`git commit -m "chore(charter): rotate proof — ${sentence}"`, { stdio: 'inherit' });
+    execSync(`git commit -m "chore(charter): rotate pass phrase — ${sentence}"`, { stdio: 'inherit' });
     execSync('git push -u origin HEAD', { stdio: 'inherit' });
   }
 }

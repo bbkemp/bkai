@@ -103,7 +103,7 @@
     line-height: 1.35;
     letter-spacing: -0.005em;
   }
-  .proof {
+  .passphrase {
     font-family: var(--mono);
     font-weight: 500;
     font-size: 24px;
@@ -288,7 +288,7 @@
   <header>
     <h1 class="display">Bkai Compass</h1>
     <div class="sub">
-      Helper for directional charter fetch proof rotation
+      Helper for directional charter fetch pass-phrase rotation
     </div>
   </header>
 
@@ -304,25 +304,25 @@
   <div class="card">
     <div class="label">
       <span class="status-dot" id="status-dot"></span>
-      Current proof
+      Current pass phrase
       <span id="status-msg" class="err-msg"></span>
     </div>
-    <div class="proof" id="proof">loading&hellip;</div>
+    <div class="passphrase" id="passphrase">loading&hellip;</div>
     <div class="row">
       <button id="copy-paste" type="button">Copy paste-text for new chat</button>
-      <button class="secondary" id="copy-proof" type="button">Copy proof</button>
+      <button class="secondary" id="copy-passphrase" type="button">Copy pass phrase</button>
       <button class="secondary" id="refresh" type="button">Refresh</button>
     </div>
     <pre id="paste-preview" aria-label="Paste-text preview"></pre>
   </div>
 
   <div class="card">
-    <div class="label">Rotate proof</div>
+    <div class="label">Rotate pass phrase</div>
     <div class="note">
       Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; <code>npm run charter:rotate &quot;&hellip;&quot;</code> &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
     </div>
     <div class="row">
-      <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New proof sentence candidate">
+      <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New pass phrase candidate">
       <button class="secondary" id="reroll-sentence" type="button" title="Generate another candidate sentence">&#8635; Reroll</button>
     </div>
     <div id="candidate-err" class="err-msg" style="margin: 8px 0 0; min-height: 14px;"></div>
@@ -338,7 +338,7 @@
     </span><br>
     Charter source: <a id="charter-link" href="https://github.com/bbkemp/bkai/blob/main/CHARTER.md" target="_blank" rel="noopener">github.com/bbkemp/bkai/blob/main/CHARTER.md</a><br>
     Repo: <a href="https://github.com/bbkemp/bkai" target="_blank" rel="noopener">github.com/bbkemp/bkai</a><br>
-    Press <span class="kbd">R</span> to refresh proof, <span class="kbd">U</span> to re-roll URL, <span class="kbd">C</span> to copy paste-text.
+    Press <span class="kbd">R</span> to refresh pass phrase, <span class="kbd">U</span> to re-roll URL, <span class="kbd">C</span> to copy paste-text.
   </div>
 </div>
 
@@ -392,7 +392,7 @@
     return CHARTER_BASE + '?cb=' + cb;
   }
 
-  function extractProof(text) {
+  function extractPassPhrase(text) {
     var tokens = [];
     var m;
     MARKER_RE.lastIndex = 0;
@@ -413,26 +413,26 @@
   }
 
   function pasteText(cbUrl) {
-    // Intentionally does NOT include the expected proof sentence. The whole point
-    // is that Claude must reconstruct it from the file. Bryan verifies the echoed
-    // value against the dashboard's "Current proof" display.
-    return 'Read ' + cbUrl + '. Find every [[token:N:WORD]] marker in the file, sort by N ascending, and echo the assembled sentence verbatim in the form "Proof: <sentence>" before responding. If the fetch fails or no markers are found, say so explicitly — do not proceed as if you fetched.';
+    // Reading the charter is the directive. The pass phrase is the receipt —
+    // intentionally not embedded here so Claude can't echo a value supplied in
+    // the prompt; the only path through is to actually read the file.
+    return "Bryan's charter lives at " + cbUrl + ". Read every paragraph — the 21 rules in it govern how you work with him for the rest of this session. The file contains [[token:N:WORD]] markers scattered through it as a proof-of-read; find every one, sort by N ascending, and lead your first response with the assembled sentence in the form \"Pass phrase: <sentence>\". If the fetch fails or no markers turn up, say so explicitly — do not proceed as if you fetched.";
   }
 
   function rotationPrompt(sentence, dateStr) {
     return [
-      'Rotate the bbkemp/bkai charter proof to: "' + sentence + '" (date ' + dateStr + ').',
+      'Rotate the bbkemp/bkai charter pass phrase to: "' + sentence + '" (date ' + dateStr + ').',
       '',
       'Execute end-to-end, no further confirmation:',
       '1. Ensure a local clone of bbkemp/bkai exists. If not, `git clone https://github.com/bbkemp/bkai.git /tmp/bkai-clone`.',
       '2. cd into the clone, `git checkout main && git pull`.',
-      '3. `git checkout -b chore/rotate-proof-' + sentence.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) + '`.',
+      '3. `git checkout -b chore/rotate-pass-phrase-' + sentence.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) + '`.',
       '4. `node scripts/rotate-charter.mjs "' + sentence + '"`  (or `npm run charter:rotate -- "' + sentence + '"`)',
-      '5. `git add CHARTER.md && git commit -m "chore(charter): rotate proof — ' + sentence + '" && git push -u origin HEAD`.',
-      '6. Open PR via GitHub MCP (title same as commit, base main, body "Routine proof rotation. Generated from the dashboard.").',
+      '5. `git add CHARTER.md && git commit -m "chore(charter): rotate pass phrase — ' + sentence + '" && git push -u origin HEAD`.',
+      '6. Open PR via GitHub MCP (title same as commit, base main, body "Routine pass-phrase rotation. Generated from the dashboard.").',
       '7. Squash-merge the PR.',
-      '8. Verify via GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main`, extract all [[token:N:WORD]] markers, sort by N, echo the assembled sentence in the form "Proof: <sentence>". Do NOT compare it to anything in this prompt — just echo what you reconstructed. Bryan verifies against the dashboard.',
-      '9. Reply with: the echoed Proof line + the main commit SHA. One line.',
+      '8. Verify via GitHub Contents API (uncached — do NOT use the raw URL or WebFetch): fetch CHARTER.md on `main`, extract all [[token:N:WORD]] markers, sort by N, echo the assembled sentence in the form "Pass phrase: <sentence>". Do NOT compare it to anything in this prompt — just echo what you reconstructed. Bryan verifies against the dashboard.',
+      '9. Reply with: the echoed Pass phrase line + the main commit SHA. One line.',
       '',
       'Only stop and ask if something is genuinely wrong: branch name already exists, script reports a token conflict, merge conflict, post-merge Contents API fetch produces no markers. Otherwise execute silently.'
     ].join('\n');
@@ -447,12 +447,12 @@
   var copyUrlBtn = document.getElementById('copy-url');
   var rerollUrlBtn = document.getElementById('reroll-url');
 
-  var proofEl = document.getElementById('proof');
+  var passPhraseEl = document.getElementById('passphrase');
   var statusDot = document.getElementById('status-dot');
   var statusMsg = document.getElementById('status-msg');
   var pastePreviewEl = document.getElementById('paste-preview');
   var copyPasteBtn = document.getElementById('copy-paste');
-  var copyProofBtn = document.getElementById('copy-proof');
+  var copyPassPhraseBtn = document.getElementById('copy-passphrase');
   var refreshBtn = document.getElementById('refresh');
 
   var candidateInput = document.getElementById('candidate');
@@ -465,7 +465,7 @@
 
   // ---- State --------------------------------------------------------------
   var currentCb = null;
-  var currentProof = null;
+  var currentPassPhrase = null;
 
   function setStatus(state, msg) {
     statusDot.className = 'status-dot' + (state ? ' ' + state : '');
@@ -477,7 +477,7 @@
     currentCb = cb;
     var url = urlWithCb(cb);
     cbUrlEl.textContent = url;
-    // Paste-text only depends on the URL — no proof leak in the prompt.
+    // Paste-text only depends on the URL — pass phrase never leaks into the prompt.
     pastePreviewEl.textContent = pasteText(url);
   }
 
@@ -485,8 +485,8 @@
     setCbUrl(randomCbHex(4));
   }
 
-  // ---- Proof card ---------------------------------------------------------
-  async function loadProof() {
+  // ---- Pass phrase card ---------------------------------------------------
+  async function loadPassPhrase() {
     setStatus('', 'fetching…');
     try {
       var r = await fetch(CHARTER_API, {
@@ -499,14 +499,14 @@
         throw new Error('unexpected API response shape');
       }
       var txt = decodeBase64Utf8(json.content);
-      var proof = extractProof(txt);
-      if (!proof) throw new Error('no [[token:N:WORD]] markers in CHARTER.md');
-      currentProof = proof;
-      proofEl.textContent = proof;
+      var phrase = extractPassPhrase(txt);
+      if (!phrase) throw new Error('no [[token:N:WORD]] markers in CHARTER.md');
+      currentPassPhrase = phrase;
+      passPhraseEl.textContent = phrase;
       setStatus('live', '');
     } catch (e) {
-      currentProof = null;
-      proofEl.textContent = '—';
+      currentPassPhrase = null;
+      passPhraseEl.textContent = '—';
       pastePreviewEl.textContent = '';
       setStatus('err', 'fetch failed: ' + e.message);
     }
@@ -561,8 +561,8 @@
       rotationPreview.textContent = '';
       return;
     }
-    if (currentProof && v.toLowerCase() === currentProof.toLowerCase()) {
-      candidateErr.textContent = 'Same as current proof — pick a different one.';
+    if (currentPassPhrase && v.toLowerCase() === currentPassPhrase.toLowerCase()) {
+      candidateErr.textContent = 'Same as current pass phrase — pick a different one.';
       candidateInput.classList.add('invalid');
       copyRotationBtn.disabled = true;
       rotationPreview.textContent = '';
@@ -630,12 +630,12 @@
     if (!currentCb) return;
     copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
   });
-  copyProofBtn.addEventListener('click', function () {
-    if (!currentProof) return;
-    copy(currentProof, copyProofBtn);
+  copyPassPhraseBtn.addEventListener('click', function () {
+    if (!currentPassPhrase) return;
+    copy(currentPassPhrase, copyPassPhraseBtn);
   });
   refreshBtn.addEventListener('click', function () {
-    loadProof().then(updateRotationPreview);
+    loadPassPhrase().then(updateRotationPreview);
   });
 
   rerollSentenceBtn.addEventListener('click', function () {
@@ -659,7 +659,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-    if (e.key === 'r' || e.key === 'R') loadProof();
+    if (e.key === 'r' || e.key === 'R') loadPassPhrase();
     if (e.key === 'u' || e.key === 'U') rerollUrl();
     if (e.key === 'c' || e.key === 'C') {
       if (currentCb) copy(pasteText(urlWithCb(currentCb)), copyPasteBtn);
@@ -670,7 +670,7 @@
   applyAccent();
   rerollUrl();
   candidateInput.value = generateSentence();
-  loadProof().then(updateRotationPreview);
+  loadPassPhrase().then(updateRotationPreview);
 })();
 </script>
 </body>
