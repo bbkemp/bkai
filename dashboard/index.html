@@ -133,7 +133,7 @@
   <div class="card">
     <div class="label">Rotate sentinel</div>
     <div class="note">
-      Edit if you want, then copy and paste the rotation prompt to Claude. Claude does branch &rarr; edit CHARTER.md &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify with no further interaction. Only asks if something's genuinely wrong.
+      Paste the rotation prompt into Claude Code. Prompt &rarr; branch &rarr; edit CHARTER.md &rarr; commit &rarr; PR &rarr; squash-merge &rarr; verify. Refresh browser once complete.
     </div>
     <div class="row">
       <input id="candidate" type="text" autocomplete="off" spellcheck="false" aria-label="New sentinel candidate">
@@ -157,6 +157,7 @@
 (function () {
   'use strict';
   var CHARTER_RAW = 'https://raw.githubusercontent.com/bbkemp/bkai/main/CHARTER.md';
+  var CHARTER_API = 'https://api.github.com/repos/bbkemp/bkai/contents/CHARTER.md?ref=main';
   var SENTINEL_RE = /<!--\s*SENTINEL:\s*([a-z0-9-]+)\s*-->/i;
   var CANDIDATE_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
 
@@ -198,6 +199,14 @@
     return new Date().toISOString().slice(0, 10);
   }
 
+  function decodeBase64Utf8(b64) {
+    var clean = b64.replace(/\s/g, '');
+    var bin = atob(clean);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
   var sentinelEl = document.getElementById('sentinel');
   var statusDot = document.getElementById('status-dot');
   var statusMsg = document.getElementById('status-msg');
@@ -221,9 +230,16 @@
   async function loadSentinel() {
     setStatus('', 'fetching…');
     try {
-      var r = await fetch(CHARTER_RAW + '?t=' + Date.now(), { cache: 'no-store' });
+      var r = await fetch(CHARTER_API, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' },
+        cache: 'no-store'
+      });
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      var txt = await r.text();
+      var json = await r.json();
+      if (json.encoding !== 'base64' || typeof json.content !== 'string') {
+        throw new Error('unexpected API response shape');
+      }
+      var txt = decodeBase64Utf8(json.content);
       var m = txt.match(SENTINEL_RE);
       if (!m) throw new Error('no sentinel marker in CHARTER.md');
       currentSentinel = m[1];
